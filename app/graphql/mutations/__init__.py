@@ -1,7 +1,9 @@
 from graphene import ObjectType
 
-from .example import ExampleMutation
+from .music_recognition import MusicRecognitionMutation
+from .music_uploader import MusicUploaderMutation
 
 
 class Mutations(ObjectType):
-    example = ExampleMutation.Field()
+    upload = MusicUploaderMutation.Field()
+    recognition = MusicRecognitionMutation.Field()

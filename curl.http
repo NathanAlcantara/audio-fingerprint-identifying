@@ -1,0 +1,10 @@
+curl localhost:5000/graphql \
+  -F operations='{ "query": "mutation ($file: Upload!) { upload(musicFile: $file) { success } }", "variables": { "file": null } }' \
+  -F map='{ "0": ["variables.file"] }' \
+  -F 0=@"Bad Wolves - Zombie.mp3"
+
+
+curl localhost:5000/graphql \
+  -F operations='{ "query": "mutation ($file: Upload!) { recognition(sampleFile: $file) { success } }", "variables": { "file": null } }' \
+  -F map='{ "0": ["variables.file"] }' \
+  -F 0=@"Bad Wolves - Zombie.mp3"

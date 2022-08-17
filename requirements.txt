@@ -6,3 +6,8 @@ pylint-flask-sqlalchemy==0.2.0
 pylint-flask==0.6
 SQLAlchemy-Utils==0.38.3
 Flask-Migrate==3.1.0
+graphene-file-upload===1.3.0
+numpy==1.23.2
+pydub==0.25.1
+matplotlib==3.5.3
+scipy==1.9.0
