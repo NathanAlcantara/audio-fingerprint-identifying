@@ -17,7 +17,6 @@ app.config.from_file("configs/config.json", load=json.load)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-
 @app.cli.command("initdb")
 def initdb():
     initialize_database(app)

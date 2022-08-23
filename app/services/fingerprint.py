@@ -54,7 +54,10 @@ class FingerprintService:
 
         # apply log transform since specgram() returns linear array
         # calculates the base 10 logarithm for all elements of arr2D
+        np.seterr(divide='ignore')
         arr2D = 10 * np.log10(arr2D)
+        np.seterr(divide='warn')
+        
         arr2D[arr2D == -np.inf] = 0  # replace infs with zeros
 
         # find local maxima
