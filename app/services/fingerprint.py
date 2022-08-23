@@ -60,6 +60,9 @@ class FingerprintService:
         # find local maxima
         local_maxima = self._get_2D_peaks(arr2D, plot=plots, amp_min=amp_min)
 
+        msg = '   local_maxima: %d of frequency & time pairs'
+        print(msg % len(local_maxima))
+
         # return hashes
         return self._generate_hashes(local_maxima, fan_value=fan_value)
 
@@ -102,7 +105,7 @@ class FingerprintService:
             plt.gca().invert_yaxis()
             plt.show()
 
-        return zip(frequency_idx, time_idx)
+        return list(zip(frequency_idx, time_idx))
 
     # Hash list structure: sha1_hash[0:20] time_offset
     # example: [(e05b341a9b77a51fd26, 32), ... ]

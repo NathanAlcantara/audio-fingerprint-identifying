@@ -1,9 +1,22 @@
 import getpass
+import logging
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy, event
+from sqlalchemy_utils import create_database, database_exists
 
 db = SQLAlchemy()
+
+
+def initialize_database(app):
+    engine = db.create_engine(
+        app.config["SQLALCHEMY_DATABASE_URI"], {})
+    if not database_exists(engine.url):
+        create_database(engine.url)
+        logging.info(
+            "Banco de dados %s Criado.",
+            app.config["SQLALCHEMY_DATABASE_URI"].rsplit("/", 1)[-1],
+        )
 
 
 class AuditColumns:

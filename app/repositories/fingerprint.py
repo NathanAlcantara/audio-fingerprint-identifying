@@ -28,6 +28,32 @@ class FingerprintRepository:
 
             return None
 
+    def upsert_bulk(self, fingerprints, song: Song):
+        try:
+            fingerprints_db = []
+
+            for fingerprint in fingerprints:
+                fingerprint_db = self.get_by_id(
+                    fingerprint.id) if hasattr(fingerprint, "id") else None
+
+                if not fingerprint_db:
+                    fingerprint_db = Fingerprint()
+
+                fingerprint_db.hash = fingerprint["hash"]
+                fingerprint_db.offset = int(fingerprint["offset"])
+                fingerprint_db.song = song
+
+                fingerprints_db.append(fingerprint_db)
+                self.db.session.add(fingerprint_db)
+
+            self.db.session.commit()
+
+            return fingerprints_db
+        except Exception as ex:
+            self.db.session.rollback()
+
+            return None
+
     def get_by_id(self, id: int) -> Fingerprint:
         return Fingerprint.query.filter_by(id=id).first()
 

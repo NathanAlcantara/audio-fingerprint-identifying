@@ -4,7 +4,7 @@ from graphene import Boolean, Mutation
 from graphene_file_upload.scalars import Upload
 
 from ...repositories import FingerprintRepository, SongRepository
-from ...services import FingerprintService, AudioService
+from ...services import AudioService, FingerprintService
 
 
 class MusicUploaderMutation(Mutation):
@@ -39,23 +39,34 @@ class MusicUploaderMutation(Mutation):
             )
 
         hashes = set()
+        channel_amount = len(audio['channels'])
 
-        for channel in audio['channels']:
+        for channeln, channel in enumerate(audio['channels']):
+            msg = '   fingerprinting channel %d/%d'
+            print(msg % (channeln+1, channel_amount))
+
             channel_hashes = fingerprint_service.fingerprint(
                 channel, Fs=audio['Fs'])
             channel_hashes = set(channel_hashes)
 
+            msg = '   finished channel %d/%d, got %d hashes'
+            print(msg % (channeln+1, channel_amount, len(channel_hashes)))
+
             hashes |= channel_hashes
 
-        for hash, offset in hashes:
-            fingerprint = fingerprint_repo.get_by_hash(hash)
+        msg = '   finished fingerprinting, got %d unique hashes'
 
-            if not fingerprint:
-                fingerprint_repo.upsert(
-                    {
-                        "hash": hash,
-                        "offset": offset
-                    }, song)
+        fingerprints = []
+        for hash, offset in hashes:
+            fingerprints.append({
+                "hash": hash,
+                "offset": offset
+            })
+
+        msg = '   storing %d hashes in db' % len(fingerprints)
+        print(msg)
+
+        fingerprint_repo.upsert_bulk(fingerprints, song)
 
         os.remove(filename)
 

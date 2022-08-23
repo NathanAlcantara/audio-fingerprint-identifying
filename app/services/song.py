@@ -15,19 +15,43 @@ class SongService:
 
     def recognize(self):
         matches = []
+        data = self.audio['channels']
+        channel_amount = len(data)
 
-        for channel in self.audio['channels']:
+        for channeln, channel in enumerate(data):
+            msg = '   fingerprinting channel %d/%d'
+            print(msg % (channeln+1, channel_amount))
+
             channel_hashes = self.fingerprint_service.fingerprint(
                 channel, Fs=self.audio['Fs'])
 
             matches.extend(self._return_matches(channel_hashes))
 
+            msg = '   finished channel %d/%d, got %d hashes'
+            print(msg % (
+                channeln+1, channel_amount, len(matches)
+            ))
+
         total_matches_found = len(matches)
 
         if total_matches_found > 0:
+            msg = ' ** totally found %d hash matches'
+            print(msg % total_matches_found)
+
             song = self._align_matches(matches)
 
-            print(song)
+            msg = ' => song: %s (id=%d)\n'
+            msg += '    offset: %d (%d secs)\n'
+            msg += '    confidence: %d'
+
+            print(msg % (
+                song['SONG_NAME'], song['SONG_ID'],
+                song['OFFSET'], song['OFFSET_SECS'],
+                song['CONFIDENCE']
+            ))
+        else:
+            msg = ' ** not matches found at all'
+            print(msg)
 
     @staticmethod
     def _grouper(iterable, n, fillvalue=None):
@@ -46,6 +70,21 @@ class SongService:
 
         for split_values in self._grouper(values, 1000):
             fingerpints = self.fingerprint_repo.get_all_by_hashes(split_values)
+            matches_found = len(fingerpints)
+
+            if matches_found > 0:
+                msg = '   ** found %d hash matches (step %d/%d)'
+                print(msg % (
+                    matches_found,
+                    len(split_values),
+                    len(values)
+                ))
+            else:
+                msg = '   ** not matches found (step %d/%d)'
+                print(msg % (
+                    len(split_values),
+                    len(values)
+                ))
 
             for fingerprint in fingerpints:
                 # (sid, db_offset - song_sampled_offset)
